@@ -8,7 +8,7 @@ namespace mirage_city_mod
 {
     public class NetworkConstants
     {
-        public static readonly string ServerAddress = "http://34.207.233.31/api";
+        public static readonly string ServerAddress = "https://api.mirage.city";
 
         public static IEnumerator SendJson(string endpoint, object obj, string method)
         {
