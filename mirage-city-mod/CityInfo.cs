@@ -7,25 +7,21 @@ namespace mirage_city_mod
     public class CityInfo : System.Object
     {
         [SerializeField]
-        double elapsed;
+        public uint elapsed;
 
         [SerializeField]
-        uint population;
-
-        [SerializeField]
-        bool simrunning;
-
+        public uint population;
         public CityInfo()
         {
-            update();
+            elapsed = 0;
+            population = 0;
         }
         public void update()
         {
             var metaData = SimulationManager.instance.m_metaData;
             var delta = metaData.m_currentDateTime - metaData.m_startingDateTime;
-            elapsed = delta.TotalSeconds;
+            elapsed = (uint)delta.TotalSeconds;
             population = DistrictManager.instance.m_districts.m_buffer[0].m_populationData.m_finalCount;
-            simrunning = !SimulationManager.instance.SimulationPaused;
         }
     }
 }

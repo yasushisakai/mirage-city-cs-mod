@@ -10,9 +10,7 @@ namespace mirage_city_mod
     public class Constants
     {
         // my address;
-        public static readonly string IP = "18.27.123.81";
-        public static readonly UInt16 PORT = 9000;
-        public static readonly string Address = $"{IP}:{PORT}";
+
     }
 
     public class MirageCityMod : IUserMod

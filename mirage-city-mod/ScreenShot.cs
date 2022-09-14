@@ -9,40 +9,25 @@ using ColossalFramework.Threading;
 namespace mirage_city_mod
 {
 
-    public class ScreenShot : MonoBehaviour
+    public class PrintScreen
     {
-
-        public bool flag;
+        public bool ready;
+        public byte[] buffer;
         public int width = 640;
         public int height = 480;
 
-        public GameObject parent;
-
-        public void trigger()
+        public PrintScreen(int _width, int _height)
         {
-            flag = true;
+            ready = false;
+            width = _width;
+            height = _height;
         }
 
-        public void Update()
-        {
-            if (flag)
-            {
-                StartCoroutine(shoot());
-            }
-        }
-
-        public static string base64Image(byte[] bytes)
-        {
-            Debug.Log($"image size: {bytes.Length}");
-            return System.Convert.ToBase64String(bytes);
-        }
-
-        private IEnumerator shoot()
+        public IEnumerator Shoot()
         {
             Debug.Log("taking screen shot");
             // take screenshot and save it in buffer
             yield return new WaitForEndOfFrame();
-            flag = false;
             int upscaleWidth = width * 4;
             int upscaleHeight = height * 4;
             int skip = 0;
@@ -91,12 +76,9 @@ namespace mirage_city_mod
                 image.Resize(width, height);
                 if (SimulationManager.exists)
                 {
-                    if (parent != null)
-                    {
-                        var buffer = image.GetFormattedImage(Image.BufferFileFormat.PNG);
-                        var client = parent.GetComponent<HttpClient>();
-                        client.upload(buffer);
-                    }
+                    // buffer = image.GetFormattedImage(Image.BufferFileFormat.PNG);
+                    buffer = image.GetFormattedImage(Image.BufferFileFormat.JPG);
+                    ready = true;
 
                     ThreadHelper.dispatcher.Dispatch(delegate
                     {

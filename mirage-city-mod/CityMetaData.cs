@@ -13,9 +13,6 @@ namespace mirage_city_mod
         string name;
 
         [SerializeField]
-        string map;
-
-        [SerializeField]
         public string id;
 
         [SerializeField]
@@ -24,7 +21,6 @@ namespace mirage_city_mod
         public CityMetaData(SimulationMetaData metaData, string _address)
         {
             name = metaData.m_CityName;
-            map = metaData.m_MapName;
             id = metaData.m_gameInstanceIdentifier;
             address = _address;
         }
@@ -33,14 +29,13 @@ namespace mirage_city_mod
         {
             var metaData = SimulationManager.instance.m_metaData;
             name = metaData.m_CityName;
-            map = metaData.m_MapName;
             id = metaData.m_gameInstanceIdentifier;
             address = _address;
         }
 
         public override string ToString()
         {
-            return $"name: {name}, mapName: {map}, id: {id}, address: {address}";
+            return $"name: {name}, id: {id}, address: {address}";
         }
     }
 }

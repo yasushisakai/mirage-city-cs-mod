@@ -60,7 +60,8 @@
     <Compile Include="CityMetaData.cs" />
     <Compile Include="CityInfo.cs" />
     <Compile Include="Screenshot.cs" />
-    <Compile Include="HttpClient.cs" />
+    <Compile Include="CameraManipulator.cs" />
+    <Compile Include="Reporter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

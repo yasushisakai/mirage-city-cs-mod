@@ -67,16 +67,6 @@ namespace mirage_city_mod
                                 SimulationManager.instance.SimulationPaused = !SimulationManager.instance.SimulationPaused;
                                 SendMessage(stream, "OK");
                                 break;
-                            case "update_info":
-                                var client = parent.GetComponent<HttpClient>();
-                                client.update = true;
-                                SendMessage(stream, "OK");
-                                break;
-                            case "upload_screen_shot":
-                                var screenshot = parent.GetComponent<ScreenShot>();
-                                screenshot.trigger();
-                                SendMessage(stream, "OK");
-                                break;
                             default:
                                 SendMessage(stream, "Invalid Command");
                                 break;

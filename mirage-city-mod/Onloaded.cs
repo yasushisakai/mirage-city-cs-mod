@@ -9,6 +9,7 @@ namespace mirage_city_mod
     {
 
         public GameObject mirageCityManager;
+        public GameObject mainCamera;
 
         public override void OnLevelLoaded(LoadMode mode)
         {
@@ -16,11 +17,7 @@ namespace mirage_city_mod
             mirageCityManager = new GameObject("Mirage City Manager");
 
             // 1. register to the server
-            mirageCityManager.AddComponent<HttpClient>();
-
-            // 2. screenshot component
-            var ss = mirageCityManager.AddComponent<ScreenShot>();
-            ss.parent = mirageCityManager;
+            mirageCityManager.AddComponent<Reporter>();
 
             // 2. start server and wait for commands
             var server = mirageCityManager.AddComponent<TCPServer>() as TCPServer;
