@@ -17,14 +17,19 @@ namespace mirage_city_mod
         private static readonly string healthCheckEndpoint = $"{mirageCityServerAddress}/city/health_check";
         private static readonly string infoUpdateEndpoint = $"{mirageCityServerAddress}/city/update/{meta.id}";
         private static readonly WaitForSeconds healthCheckInterval = new WaitForSeconds(10);
-        private static readonly WaitForSeconds updateInterval = new WaitForSeconds(20);
+        private static readonly WaitForSeconds updateInterval = new WaitForSeconds(15);
         private static readonly WaitForSeconds printCheckInterval = new WaitForSeconds(1);
-        private static HealthCheck hc = new HealthCheck();
-        private static CityInfo info = new CityInfo();
-        private static PrintScreen printScreen = new PrintScreen(3840, 2160);
+        private HealthCheck hc;
+        private CityInfo info;
+        private PrintScreen printScreen = new PrintScreen(3840, 2160);
 
         public void Start()
         {
+
+            hc = new HealthCheck();
+            info = new CityInfo();
+            printScreen = new PrintScreen(3840, 2160);
+
             StartCoroutine(register());
             StartCoroutine(healthCheck());
             StartCoroutine(updateInfo());
@@ -49,7 +54,6 @@ namespace mirage_city_mod
         {
 
             var endpoint = $"{mirageCityServerAddress}/city/upload/{meta.id}/{(int)_elapsed}";
-            Debug.Log($"image upload endpoint: {endpoint}");
             StartCoroutine(printScreen.Shoot());
 
             while (!printScreen.ready)
@@ -58,8 +62,6 @@ namespace mirage_city_mod
             }
 
             printScreen.ready = false;
-            Debug.Log("Reporter: uploadScreenshot");
-            Debug.Log($"printScreenBufferSize: {printScreen.buffer.Length}");
             StartCoroutine(sendJpg(endpoint, printScreen.buffer, "POST"));
         }
 
@@ -71,20 +73,19 @@ namespace mirage_city_mod
                 var lastElapsed = info.elapsed;
                 info.update();
                 // did the simulation run?
-                // if (lastElapsed != info.elapsed)
-                // {
-                Debug.Log("Reporter: update");
-                StartCoroutine(sendJson(infoUpdateEndpoint, info, "POST"));
-                StartCoroutine(uploadScreenshot(info.elapsed));
-                // }
+                if (lastElapsed != info.elapsed)
+                {
+                    StartCoroutine(sendJson(infoUpdateEndpoint, info, "POST"));
+                    StartCoroutine(uploadScreenshot(info.elapsed));
+                    var json = JsonUtility.ToJson(info);
+                    Debug.Log(json);
+                }
             }
         }
 
         private static UnityWebRequest prepareRequest(string url, byte[] bytes, string method)
         {
-            Debug.Log(url);
             var req = new UnityWebRequest(url, method);
-            Debug.Log(req.url);
             req.uploadHandler = (UploadHandler)new UploadHandlerRaw(bytes);
             req.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
             return req;
@@ -92,7 +93,7 @@ namespace mirage_city_mod
 
         private static IEnumerator sendJson(string endpoint, object obj, string method)
         {
-            var jsonString = JsonUtility.ToJson(obj);
+            var jsonString = JsonUtility.ToJson(obj, true);
             var bytes = Encoding.UTF8.GetBytes(jsonString);
             var req = prepareRequest(endpoint, bytes, method);
             req.SetRequestHeader("Content-Type", "application/json");
