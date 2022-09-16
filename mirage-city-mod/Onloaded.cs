@@ -19,8 +19,6 @@ namespace mirage_city_mod
             // 1. register to the server
             mirageCityManager.AddComponent<Reporter>();
 
-            mirageCityManager.AddComponent<DemandMonitor>();
-
             // 2. start server and wait for commands
             var server = mirageCityManager.AddComponent<TCPServer>() as TCPServer;
             server.setParent(mirageCityManager);

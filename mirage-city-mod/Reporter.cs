@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.Networking;
 using System.Text;
 using System.Collections;
-using System;
 
 namespace mirage_city_mod
 {
@@ -47,6 +46,8 @@ namespace mirage_city_mod
                 yield return healthCheckInterval;
                 hc.update();
                 StartCoroutine(sendJson(healthCheckEndpoint, hc, "POST"));
+                var zm = new ZoneMonitor();
+                zm.checkZoneblocks();
             }
         }
 
@@ -77,8 +78,6 @@ namespace mirage_city_mod
                 {
                     StartCoroutine(sendJson(infoUpdateEndpoint, info, "POST"));
                     StartCoroutine(uploadScreenshot(info.elapsed));
-                    var json = JsonUtility.ToJson(info);
-                    Debug.Log(json);
                 }
             }
         }
@@ -93,7 +92,8 @@ namespace mirage_city_mod
 
         private static IEnumerator sendJson(string endpoint, object obj, string method)
         {
-            var jsonString = JsonUtility.ToJson(obj, true);
+            var jsonString = JsonUtility.ToJson(obj);
+            Debug.Log(jsonString);
             var bytes = Encoding.UTF8.GetBytes(jsonString);
             var req = prepareRequest(endpoint, bytes, method);
             req.SetRequestHeader("Content-Type", "application/json");

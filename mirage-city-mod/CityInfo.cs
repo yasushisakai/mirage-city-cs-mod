@@ -1,87 +1,50 @@
-using UnityEngine;
-using ICities;
 using System;
-using Newtonsoft.Json;
+using UnityEngine;
 
 namespace mirage_city_mod
 {
+    [Serializable]
     public class CityInfo
     {
+        public uint elapsed;
 
-        public uint elapsed { get; set; }
+        public byte happiness;
 
-        public uint population { get; set; }
+        public uint death_count;
 
-        public byte happiness { get; set; }
+        public uint birth_rate;
 
-        public int birth_rate { get; set; } // week
+        public int residential_demand;
 
-        public int death_count { get; set; }
+        public int commercial_demand;
 
-        public CategoryData residential { get; set; }
+        public int industrial_demand;
 
-        public CategoryData industrial { get; set; }
+        private District district;
 
-        public CategoryData commercial { get; set; }
-
-        private SimulationMetaData simMetaData;
-
-        private District mainDistrict;
+        private ZoneManager zone;
 
         public CityInfo()
         {
-            elapsed = 0;
-            population = 0;
-            simMetaData = SimulationManager.instance.m_metaData;
-            mainDistrict = DistrictManager.instance.m_districts.m_buffer[0];
-
-            happiness = mainDistrict.m_finalHappiness;
-            death_count = mainDistrict.GetDeadCount(); // TODO: check DeathAmount??
-            birth_rate = (int)mainDistrict.m_birthData.m_finalCount;
-            industrial = new CategoryData(mainDistrict.m_industrialData);
-            commercial = new CategoryData(mainDistrict.m_commercialData);
-            residential = new CategoryData(mainDistrict.m_residentialData);
+            district = DistrictManager.instance.m_districts.m_buffer[0];
+            zone = ZoneManager.instance;
         }
+
         public void update()
         {
-            var delta = simMetaData.m_currentDateTime - simMetaData.m_startingDateTime;
-            elapsed = (uint)delta.TotalSeconds;
-            population = mainDistrict.m_populationData.m_finalCount;
-            happiness = mainDistrict.m_finalHappiness;
-            var demands = DemandMonitor.Instance;
-            industrial.update(mainDistrict.m_industrialData, demands.industrial);
-            commercial.update(mainDistrict.m_commercialData, demands.commercial);
-            residential.update(mainDistrict.m_residentialData, demands.residential);
+            var meta = SimulationManager.instance.m_metaData;
+            elapsed = (uint)(meta.m_currentDateTime - meta.m_startingDateTime).TotalSeconds;
+            happiness = district.m_finalHappiness;
+            birth_rate = district.m_birthData.m_finalCount;
+            death_count = district.m_deathData.m_finalCount;
+            residential_demand = zone.m_residentialDemand;
+            commercial_demand = zone.m_commercialDemand;
+            industrial_demand = zone.m_workplaceDemand;
         }
 
         public string json()
         {
-            return JsonConvert.SerializeObject(this);
-            // return JsonUtility.ToJson(this);
-        }
-        public class CategoryData
-        {
-            public float happiness { get; set; }
-
-            public float health { get; set; }
-
-            public int demand { get; set; }
-
-            public CategoryData(DistrictPrivateData _dpd)
-            {
-                happiness = _dpd.m_finalHappiness;
-                health = _dpd.m_finalHealth;
-                demand = 0;
-            }
-
-            public void update(DistrictPrivateData _dpd, int _demand)
-            {
-                happiness = _dpd.m_finalHappiness;
-                health = _dpd.m_finalHealth;
-                demand = _demand;
-            }
+            return JsonUtility.ToJson(this);
         }
     }
-
-
 }
