@@ -192,7 +192,8 @@ namespace mirage_city_mod
             var sdString = $"[{sd.x}, {sd.y}, {sd.z}]";
             var edString = $"[{ed.x}, {ed.y}, {ed.z}]";
 
-            return "{" + $"\"id\":{id}, \"nodes\": [{start}, {end}], \"sl\": {sl}, \"sr\": {sr}, \"el\":{el}, \"er\":{er}, \"sd\":{sdString}, \"ed\":{edString}" + "}";
+            // return "{" + $"\"id\":{id}, \"nodes\": [{start}, {end}], \"sl\": {sl}, \"sr\": {sr}, \"el\":{el}, \"er\":{er}, \"sd\":{sdString}, \"ed\":{edString}" + "}";
+            return "{" + $"\"id\":{id}, \"start\": {start}, \"end\":{end}, \"sl\": {sl}, \"sr\": {sr}, \"el\":{el}, \"er\":{er}, \"sd\":{sdString}, \"ed\":{edString}" + "}";
         }
     }
 
@@ -234,18 +235,18 @@ namespace mirage_city_mod
     {
         public int x;
         public int z;
-        public string use;
+        public string land_use;
 
         public Cell(int _x, int _z, string _use)
         {
             x = _x;
             z = _z;
-            use = _use;
+            land_use = _use;
         }
 
         public string Serialize()
         {
-            return "{" + $"\"x\":{x}, \"z\": {z}, \"use\": \"{use}\"" + "}";
+            return "{" + $"\"x\":{x}, \"z\": {z}, \"land_use\": \"{land_use}\"" + "}";
         }
     }
 

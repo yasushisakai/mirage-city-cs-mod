@@ -71,13 +71,13 @@ namespace mirage_city_mod
             while (true)
             {
                 yield return updateInterval;
-                var lastElapsed = info.elapsed;
-                info.update();
-                // did the simulation run?
-                if (lastElapsed != info.elapsed)
+                var new_info = new CityInfo();
+                new_info.update();
+                if (new_info.isDifferent(info))
                 {
-                    StartCoroutine(sendJson(infoUpdateEndpoint, info, "POST"));
+                    StartCoroutine(sendText(infoUpdateEndpoint, info.Serialize(), "POST"));
                     StartCoroutine(uploadScreenshot(info.elapsed));
+                    info = new_info;
                 }
             }
         }
@@ -88,6 +88,23 @@ namespace mirage_city_mod
             req.uploadHandler = (UploadHandler)new UploadHandlerRaw(bytes);
             req.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
             return req;
+        }
+
+        private static IEnumerator sendText(string endpoint, string message, string method)
+        {
+            Debug.Log(message);
+            var bytes = Encoding.UTF8.GetBytes(message);
+            var req = prepareRequest(endpoint, bytes, method);
+            req.SetRequestHeader("Content-Type", "application/json");
+            yield return req.Send();
+
+            if (req.responseCode != 200)
+            {
+                Debug.Log($"sending json errored with status code: {req.responseCode}");
+                Debug.Log($"{req.downloadHandler.text}");
+            }
+
+            yield return null;
         }
 
         private static IEnumerator sendJson(string endpoint, object obj, string method)
@@ -102,6 +119,7 @@ namespace mirage_city_mod
             if (req.responseCode != 200)
             {
                 Debug.Log($"sending json errored with status code: {req.responseCode}");
+                Debug.Log($"{req.downloadHandler.text}");
             }
 
             yield return null;
