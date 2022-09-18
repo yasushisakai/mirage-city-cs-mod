@@ -20,14 +20,19 @@ namespace mirage_city_mod
 
         public int industrial_demand;
 
+        public string zone_info;
+
         private District district;
 
         private ZoneManager zone;
+
+        private ZoneMonitor zm;
 
         public CityInfo()
         {
             district = DistrictManager.instance.m_districts.m_buffer[0];
             zone = ZoneManager.instance;
+            zm = new ZoneMonitor();
         }
 
         public void update()
@@ -40,6 +45,7 @@ namespace mirage_city_mod
             residential_demand = zone.m_residentialDemand;
             commercial_demand = zone.m_commercialDemand;
             industrial_demand = zone.m_workplaceDemand;
+            zone_info = zm.Info();
         }
 
         public string json()

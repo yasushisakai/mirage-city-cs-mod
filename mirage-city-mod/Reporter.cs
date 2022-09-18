@@ -47,7 +47,7 @@ namespace mirage_city_mod
                 hc.update();
                 StartCoroutine(sendJson(healthCheckEndpoint, hc, "POST"));
                 var zm = new ZoneMonitor();
-                zm.checkZoneblocks();
+                // zm.checkZoneblocks();
             }
         }
 
