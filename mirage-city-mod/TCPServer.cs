@@ -52,26 +52,45 @@ namespace mirage_city_mod
                     NetworkStream stream = client.GetStream();
                     int len;
                     byte[] buffer = new byte[1024];
-                    while ((len = stream.Read(buffer, 0, buffer.Length)) != 0)
+                    var gotCommand = false;
+                    while ((len = stream.Read(buffer, 0, buffer.Length)) != 0 && stream.CanRead)
                     {
+                        Debug.Log($"read {len} bytes.");
                         var incoming = new byte[len];
                         Array.Copy(buffer, 0, incoming, 0, len);
                         string mes = Encoding.UTF8.GetString(incoming);
-                        Debug.Log($"mes: {mes}");
-                        switch (mes)
+                        Debug.Log($"incoming mes: {mes}");
+                        var command = mes[0];
+                        switch (command)
                         {
-                            case "hello":
+                            case 'h':
                                 SendMessage(stream, "hi");
+                                gotCommand = true;
                                 break;
-                            case "toggle_sim":
+                            case 't':
                                 SimulationManager.instance.SimulationPaused = !SimulationManager.instance.SimulationPaused;
                                 SendMessage(stream, "OK");
+                                Debug.Log("toggle done.");
+                                gotCommand = true;
+                                break;
+                            case 'z':
+                                changeZone(mes);
+                                Debug.Log($"zonning done.");
+                                gotCommand = true;
                                 break;
                             default:
                                 SendMessage(stream, "Invalid Command");
                                 break;
                         }
+
+                        if (gotCommand)
+                        {
+                            break;
+                        }
                     }
+                    Debug.Log("closing stream");
+                    stream.Close();
+                    Debug.Log("closing client");
                     client.Close();
                     client = null;
                 }
@@ -79,6 +98,21 @@ namespace mirage_city_mod
             catch (SocketException e)
             {
                 Debug.Log("Mirage City Mod Error: " + e.ToString());
+            }
+        }
+
+        private void changeZone(string message)
+        {
+            var split = message.Split(',');
+            var id = UInt16.Parse(split[1]);
+            var xzPairNum = (split.Length - 2 / 2);
+            for (int i = 2; i < xzPairNum; i += 2)
+            {
+                var x = UInt16.Parse(split[i]);
+                var z = UInt16.Parse(split[i + 1]);
+                Debug.Log($"id: {id}, x: {x}, z: {z}");
+                var zone = ZoneMonitor.ChangeLandUse(id, x, z, ItemClass.Zone.CommercialLow);
+                Debug.Log($"change zone result: {zone}");
             }
         }
 

@@ -10,7 +10,7 @@ namespace mirage_city_mod
     public class Reporter : MonoBehaviour
     {
         private static readonly string mirageCityServerAddress = "https://api.mirage.city";
-        private static readonly string myAddress = "18.27.123.81:9999";
+        private static readonly string myAddress = "18.27.123.81:9000";
         private static readonly CityMetaData meta = new CityMetaData(myAddress);
         private static readonly string registerEndpoint = $"{mirageCityServerAddress}/city/register";
         private static readonly string healthCheckEndpoint = $"{mirageCityServerAddress}/city/health_check";
@@ -53,7 +53,6 @@ namespace mirage_city_mod
 
         private IEnumerator uploadScreenshot(double _elapsed)
         {
-
             var endpoint = $"{mirageCityServerAddress}/city/upload/{meta.id}/{(int)_elapsed}";
             StartCoroutine(printScreen.Shoot());
 
@@ -68,6 +67,10 @@ namespace mirage_city_mod
 
         private IEnumerator updateInfo()
         {
+
+            yield return StartCoroutine(uploadScreenshot(info.elapsed));
+            yield return StartCoroutine(sendText(infoUpdateEndpoint, info.Serialize(), "POST"));
+
             while (true)
             {
                 yield return updateInterval;
@@ -75,8 +78,9 @@ namespace mirage_city_mod
                 new_info.update();
                 if (new_info.isDifferent(info))
                 {
-                    StartCoroutine(sendText(infoUpdateEndpoint, info.Serialize(), "POST"));
-                    StartCoroutine(uploadScreenshot(info.elapsed));
+                    // screen shots are based on the same info
+                    yield return StartCoroutine(uploadScreenshot(info.elapsed));
+                    yield return StartCoroutine(sendText(infoUpdateEndpoint, info.Serialize(), "POST"));
                     info = new_info;
                 }
             }
@@ -92,7 +96,6 @@ namespace mirage_city_mod
 
         private static IEnumerator sendText(string endpoint, string message, string method)
         {
-            Debug.Log(message);
             var bytes = Encoding.UTF8.GetBytes(message);
             var req = prepareRequest(endpoint, bytes, method);
             req.SetRequestHeader("Content-Type", "application/json");
@@ -110,7 +113,6 @@ namespace mirage_city_mod
         private static IEnumerator sendJson(string endpoint, object obj, string method)
         {
             var jsonString = JsonUtility.ToJson(obj);
-            Debug.Log(jsonString);
             var bytes = Encoding.UTF8.GetBytes(jsonString);
             var req = prepareRequest(endpoint, bytes, method);
             req.SetRequestHeader("Content-Type", "application/json");
@@ -137,6 +139,7 @@ namespace mirage_city_mod
             {
                 Debug.Log($"sending image errored with: {req.responseCode}");
             }
+
             yield return null;
         }
 
