@@ -106,7 +106,7 @@ namespace mirage_city_mod
                         }
                     }
                 }
-                blocks.Add(bl);
+                if (!bl.Empty()) { blocks.Add(bl); }
             }
 
             foreach (var n in nodeIds)
@@ -125,7 +125,67 @@ namespace mirage_city_mod
             return network.Serialize();
         }
 
+        public static bool ChangeLandUse(UInt16 index, int x, int z, ItemClass.Zone type)
+        {
+            ItemClass.Zone zone;
+            if (GetLandUse(index, x, z, out zone))
+            {
+                ref var block = ref ZoneManager.instance.m_blocks.m_buffer[index];
+                if (zone == ItemClass.Zone.Unzoned)
+                {
+                    block.SetZone(x, z, type);
+                    block.RefreshZoning((ushort)index);
+                }
+                else
+                {
+                    block.SetZone(x, z, ItemClass.Zone.Unzoned);
+                    block.RefreshZoning((ushort)index);
+                    block.SetZone(x, z, type);
+                    block.RefreshZoning((ushort)index);
+                }
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
 
+        public static bool GetLandUse(UInt16 index, int x, int z, out ItemClass.Zone zone)
+        {
+
+            zone = ItemClass.Zone.None;
+
+            if (x < 0 || x > ZoneBlock.COLUMN_COUNT)
+            {
+                return false;
+            }
+
+            if (z < 0 || z > 8)
+            {
+                return false;
+            }
+
+            var block = ZoneManager.instance.m_blocks.m_buffer[index];
+            if ((block.m_flags & ZoneBlock.FLAG_CREATED) != 0)
+            {
+                ulong select = (ulong)(1L << ((z << 3) | x));
+                if ((block.m_valid & select) != 0 &&
+                (block.m_shared) == 0)
+                {
+                    zone = block.GetZone(x, z);
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 
     public class Node
@@ -207,6 +267,11 @@ namespace mirage_city_mod
         {
             id = _id;
             cells = new List<Cell>();
+        }
+
+        public bool Empty()
+        {
+            return cells.Count == 0;
         }
 
         public void AppendCell(Cell _cell)

@@ -35,18 +35,13 @@ namespace mirage_city_mod
             district = DistrictManager.instance.m_districts.m_buffer[0];
             zone = ZoneManager.instance;
             zm = new ZoneMonitor();
+
+            update();
         }
 
         public bool isDifferent(CityInfo other)
         {
-            return (other.elapsed != elapsed &&
-            other.population != population &&
-            other.happiness != happiness &&
-            other.death_count != death_count &&
-            other.birth_rate != birth_rate &&
-            other.industrial_demand != industrial_demand &&
-            other.commercial_demand != commercial_demand &&
-            other.residential_demand != residential_demand);
+            return other.elapsed != elapsed;
         }
 
         public void update()
@@ -62,12 +57,6 @@ namespace mirage_city_mod
             industrial_demand = zone.m_workplaceDemand;
             network_zone_info = zm.Info();
         }
-
-        public string json()
-        {
-            return JsonUtility.ToJson(this);
-        }
-
         public string Serialize()
         {
             var result = "{";
