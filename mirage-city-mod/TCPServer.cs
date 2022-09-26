@@ -17,8 +17,8 @@ namespace mirage_city_mod
 
         private Thread listenerThread;
         private TcpListener listener;
-
-        private GameObject parent;
+        private GameObject _parent;
+        private Reporter _reporter;
 
         // the mod will listen to this port.
         private int port = 44445;
@@ -31,9 +31,10 @@ namespace mirage_city_mod
             listenerThread.Start();
         }
 
-        public void setParent(GameObject _parent)
+        public void SetParent(GameObject parent)
         {
-            parent = _parent;
+            _parent = parent;
+            _reporter = parent.GetComponent<Reporter>();
         }
 
         private void ListenLoop()
@@ -73,6 +74,16 @@ namespace mirage_city_mod
                                 Debug.Log("toggle done.");
                                 gotCommand = true;
                                 break;
+                            case 's':
+                                addScene(mes);
+                                Debug.Log("added scene");
+                                gotCommand = true;
+                                break;
+                            case 'd':
+                                deleteScene(mes);
+                                Debug.Log("deleted scene");
+                                gotCommand = true;
+                                break;
                             case 'z':
                                 changeZone(mes);
                                 Debug.Log($"zonning done.");
@@ -105,15 +116,38 @@ namespace mirage_city_mod
         {
             var split = message.Split(',');
             var id = UInt16.Parse(split[1]);
-            var xzPairNum = (split.Length - 2 / 2);
-            for (int i = 2; i < xzPairNum; i += 2)
+            var xzPairNum = (split.Length - 2 / 3);
+            for (int i = 2; i < xzPairNum; i += 3)
             {
                 var x = UInt16.Parse(split[i]);
                 var z = UInt16.Parse(split[i + 1]);
-                Debug.Log($"id: {id}, x: {x}, z: {z}");
-                var zone = ZoneMonitor.ChangeLandUse(id, x, z, ItemClass.Zone.CommercialLow);
+                var zoneId = UInt16.Parse(split[i + 2]);
+                Debug.Log($"id: {id}, x: {x}, z: {z}, zone: {zoneId}");
+                var newZone = Cell.IdtoZone(zoneId);
+                var zone = ZoneMonitor.ChangeLandUse(id, x, z, newZone);
                 Debug.Log($"change zone result: {zone}");
             }
+        }
+
+        private void addScene(string message)
+        {
+            var split = message.Split(',');
+            // you need a name, x, z, size, yaw, pitch;
+            var name = split[1].Trim();
+            var x = float.Parse(split[2]);
+            var z = float.Parse(split[3]);
+            var size = float.Parse(split[4]);
+            var yaw = float.Parse(split[5]);
+            var pitch = float.Parse(split[6]);
+            var scene = new Scene(x, z, size, yaw, pitch);
+            CityInfo.Instance.AddScene(name, scene);
+        }
+
+        private void deleteScene(string message)
+        {
+            var split = message.Split(',');
+            var name = split[1].Trim();
+            CityInfo.Instance.DeleteScene(name);
         }
 
         private void SendMessage(NetworkStream stream, string mes)

@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using System.Text;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace mirage_city_mod
 {
@@ -16,18 +17,15 @@ namespace mirage_city_mod
         private static readonly string healthCheckEndpoint = $"{mirageCityServerAddress}/city/health_check";
         private static readonly string infoUpdateEndpoint = $"{mirageCityServerAddress}/city/update/{meta.id}";
         private static readonly WaitForSeconds healthCheckInterval = new WaitForSeconds(10);
+        private static readonly WaitForSeconds imageCheckInterval = new WaitForSeconds(0.5f);
         private static readonly WaitForSeconds updateInterval = new WaitForSeconds(15);
-        private static readonly WaitForSeconds printCheckInterval = new WaitForSeconds(1);
         private HealthCheck hc;
-        private CityInfo info;
-        private PrintScreen printScreen = new PrintScreen(3840, 2160);
-
+        private CamController camCon;
         public void Start()
         {
 
             hc = new HealthCheck();
-            info = new CityInfo();
-            printScreen = new PrintScreen(3840, 2160);
+            camCon = GetComponent<CamController>();
 
             StartCoroutine(register());
             StartCoroutine(healthCheck());
@@ -36,7 +34,7 @@ namespace mirage_city_mod
 
         private IEnumerator register()
         {
-            return sendJson(registerEndpoint, meta, "POST");
+            yield return sendJson(registerEndpoint, meta, "POST");
         }
 
         private IEnumerator healthCheck()
@@ -45,43 +43,51 @@ namespace mirage_city_mod
             {
                 yield return healthCheckInterval;
                 hc.update();
-                StartCoroutine(sendJson(healthCheckEndpoint, hc, "POST"));
+                yield return sendJson(healthCheckEndpoint, hc, "POST");
                 var zm = new ZoneMonitor();
-                // zm.checkZoneblocks();
             }
         }
 
-        private IEnumerator uploadScreenshot(double _elapsed)
+        private IEnumerator uploadScreenshots(double _elapsed, IDictionary<string, Scene> scenes)
         {
-            var endpoint = $"{mirageCityServerAddress}/city/upload/{meta.id}/{(int)_elapsed}";
-            StartCoroutine(printScreen.Shoot());
-
-            while (!printScreen.ready)
+            foreach (KeyValuePair<string, Scene> s in scenes)
             {
-                yield return printCheckInterval;
+                yield return camCon.SetScene(s.Value);
+                yield return uploadScreenshot(_elapsed, s.Key);
             }
 
-            printScreen.ready = false;
-            StartCoroutine(sendJpg(endpoint, printScreen.buffer, "POST"));
+            yield return null;
+        }
+
+        private IEnumerator uploadScreenshot(double _elapsed, string key)
+        {
+
+            var endpoint = $"{mirageCityServerAddress}/city/upload/{meta.id}/{(int)_elapsed}/{key}";
+            var screen = PrintScreen.Instance;
+            yield return screen.Shoot();
+            while (!screen.ready)
+            {
+                yield return imageCheckInterval;
+            }
+            yield return sendJpg(endpoint, screen.buffer, "POST");
+            screen.Reset();
         }
 
         private IEnumerator updateInfo()
         {
-
-            yield return StartCoroutine(uploadScreenshot(info.elapsed));
-            yield return StartCoroutine(sendText(infoUpdateEndpoint, info.Serialize(), "POST"));
+            var info = CityInfo.Instance;
+            yield return uploadScreenshots(info.elapsed, info.scenes);
+            yield return sendText(infoUpdateEndpoint, info.Serialize(), "POST");
 
             while (true)
             {
                 yield return updateInterval;
-                var new_info = new CityInfo();
-                new_info.update();
-                if (new_info.isDifferent(info))
+                if (info.isStale())
                 {
+                    info.update();
                     // screen shots are based on the same info
-                    yield return StartCoroutine(uploadScreenshot(info.elapsed));
-                    yield return StartCoroutine(sendText(infoUpdateEndpoint, info.Serialize(), "POST"));
-                    info = new_info;
+                    yield return uploadScreenshots(info.elapsed, info.scenes);
+                    yield return sendText(infoUpdateEndpoint, info.Serialize(), "POST");
                 }
             }
         }
@@ -96,6 +102,7 @@ namespace mirage_city_mod
 
         private static IEnumerator sendText(string endpoint, string message, string method)
         {
+            // Debug.Log(message);
             var bytes = Encoding.UTF8.GetBytes(message);
             var req = prepareRequest(endpoint, bytes, method);
             req.SetRequestHeader("Content-Type", "application/json");

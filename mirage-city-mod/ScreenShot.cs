@@ -11,16 +11,37 @@ namespace mirage_city_mod
 
     public class PrintScreen
     {
-        public bool ready;
+
+        public static PrintScreen Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = new PrintScreen();
+                }
+                return _instance;
+            }
+        }
+
+        private static PrintScreen _instance = null;
+
         public byte[] buffer;
+        public bool ready;
         public int width = 640;
         public int height = 480;
 
-        public PrintScreen(int _width, int _height)
+        public PrintScreen(int _width = 3840, int _height = 2160)
         {
-            ready = false;
             width = _width;
             height = _height;
+            ready = false;
+        }
+
+        public void Reset()
+        {
+            ready = false;
+            buffer = new byte[0];
         }
 
         public IEnumerator Shoot()
@@ -76,7 +97,6 @@ namespace mirage_city_mod
                 image.Resize(width, height);
                 if (SimulationManager.exists)
                 {
-                    // buffer = image.GetFormattedImage(Image.BufferFileFormat.PNG);
                     buffer = image.GetFormattedImage(Image.BufferFileFormat.JPG);
                     ready = true;
 

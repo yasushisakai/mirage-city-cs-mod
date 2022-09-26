@@ -74,35 +74,7 @@ namespace mirage_city_mod
                         {
 
                             var zone = block.GetZone(x, z);
-                            string zoneType;
-                            switch (zone)
-                            {
-                                case ItemClass.Zone.ResidentialLow:
-                                    zoneType = "ResLow";
-                                    break;
-                                case ItemClass.Zone.ResidentialHigh:
-                                    zoneType = "ResHigh";
-                                    break;
-                                case ItemClass.Zone.CommercialLow:
-                                    zoneType = "ComLow";
-                                    break;
-                                case ItemClass.Zone.CommercialHigh:
-                                    zoneType = "ComHigh";
-                                    break;
-                                case ItemClass.Zone.Industrial:
-                                    zoneType = "Ind";
-                                    break;
-                                case ItemClass.Zone.Office:
-                                    zoneType = "Office";
-                                    break;
-                                case ItemClass.Zone.Unzoned:
-                                    zoneType = "UnZone";
-                                    break;
-                                default:
-                                    zoneType = "Unknown";
-                                    break;
-                            }
-                            bl.AppendCell(new Cell(x, z, zoneType));
+                            bl.AppendCell(new Cell(x, z, zone));
                         }
                     }
                 }
@@ -300,18 +272,70 @@ namespace mirage_city_mod
     {
         public int x;
         public int z;
-        public string land_use;
+        // public string land_use;
+        public ItemClass.Zone zone;
 
-        public Cell(int _x, int _z, string _use)
+
+        public Cell(int _x, int _z, ItemClass.Zone _zone)
         {
             x = _x;
             z = _z;
-            land_use = _use;
+            zone = _zone;
+        }
+
+        private int zoneToInt()
+        {
+            switch (zone)
+            {
+                case ItemClass.Zone.ResidentialLow:
+                    return 1;
+                case ItemClass.Zone.ResidentialHigh:
+                    return 2;
+                case ItemClass.Zone.CommercialLow:
+                    return 3;
+                case ItemClass.Zone.CommercialHigh:
+                    return 4;
+                case ItemClass.Zone.Industrial:
+                    return 5;
+                case ItemClass.Zone.Office:
+                    return 6;
+                case ItemClass.Zone.None:
+                    return 0;
+                case ItemClass.Zone.Unzoned:
+                    return 99;
+                default:
+                    return 0;
+
+            }
+        }
+
+        public static ItemClass.Zone IdtoZone(int id)
+        {
+            switch (id)
+            {
+                case 1:
+                    return ItemClass.Zone.ResidentialLow;
+                case 2:
+                    return ItemClass.Zone.ResidentialHigh;
+                case 3:
+                    return ItemClass.Zone.CommercialLow;
+                case 4:
+                    return ItemClass.Zone.CommercialHigh;
+                case 5:
+                    return ItemClass.Zone.Industrial;
+                case 6:
+                    return ItemClass.Zone.Office;
+                case 99:
+                    return ItemClass.Zone.Unzoned;
+                default:
+                    return ItemClass.Zone.None;
+            }
         }
 
         public string Serialize()
         {
-            return "{" + $"\"x\":{x}, \"z\": {z}, \"land_use\": \"{land_use}\"" + "}";
+            // return "{" + $"\"x\":{x}, \"z\": {z}, \"land_use\": \"{land_use}\"" + "}";
+            return $"[{x},{z},{zoneToInt()}]";
         }
     }
 

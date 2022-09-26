@@ -63,11 +63,11 @@
     <Compile Include="CityMetaData.cs" />
     <Compile Include="CityInfo.cs" />
     <Compile Include="Screenshot.cs" />
-    <Compile Include="CameraManipulator.cs" />
+    <Compile Include="CamController.cs" />
     <Compile Include="Reporter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ZoneMonitor.cs" />
-    <Compile Include="NetMonitor.cs" />
+    <Compile Include="Scene.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

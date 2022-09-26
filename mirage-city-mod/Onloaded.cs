@@ -17,11 +17,12 @@ namespace mirage_city_mod
             mirageCityManager = new GameObject("Mirage City Manager");
 
             // 1. register to the server
+            mirageCityManager.AddComponent<CamController>();
             mirageCityManager.AddComponent<Reporter>();
 
             // 2. start server and wait for commands
             var server = mirageCityManager.AddComponent<TCPServer>() as TCPServer;
-            server.setParent(mirageCityManager);
+            server.SetParent(mirageCityManager);
         }
     }
 }

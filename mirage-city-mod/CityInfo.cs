@@ -1,11 +1,28 @@
 using System;
 using UnityEngine;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace mirage_city_mod
 {
     [Serializable]
     public class CityInfo
     {
+
+        public static CityInfo Instance
+        {
+            get
+            {
+                if (_instance is null)
+                {
+                    _instance = new CityInfo();
+                }
+                return _instance;
+            }
+        }
+
+        private static CityInfo _instance = null;
+
         public uint elapsed;
 
         public uint population;
@@ -24,6 +41,8 @@ namespace mirage_city_mod
 
         public string network_zone_info;
 
+        public Dictionary<String, Scene> scenes;
+
         private District district;
 
         private ZoneManager zone;
@@ -35,14 +54,32 @@ namespace mirage_city_mod
             district = DistrictManager.instance.m_districts.m_buffer[0];
             zone = ZoneManager.instance;
             zm = new ZoneMonitor();
-
+            scenes = new Dictionary<String, Scene>();
+            var origin = Scene.Origin();
+            scenes.Add("default", origin);
             update();
         }
 
-        public bool isDifferent(CityInfo other)
+        public void AddScene(string key, Scene value)
         {
-            return other.elapsed != elapsed;
+            scenes.Add(key, value);
         }
+
+        public void DeleteScene(string key)
+        {
+            if (scenes.ContainsKey(key))
+            {
+                scenes.Remove(key);
+            }
+        }
+
+        public bool isStale()
+        {
+            var metaData = SimulationManager.instance.m_metaData;
+            var newElapsed = (uint)(metaData.m_currentDateTime - metaData.m_startingDateTime).TotalSeconds;
+            return newElapsed != elapsed;
+        }
+
 
         public void update()
         {
@@ -57,11 +94,19 @@ namespace mirage_city_mod
             industrial_demand = zone.m_workplaceDemand;
             network_zone_info = zm.Info();
         }
+
+        private string serializeSceneNames()
+        {
+            var sceneKeys = String.Join(",", scenes.Keys.Select(s => "\"" + s + "\"").ToArray());
+            return $"[{sceneKeys}]";
+        }
+
         public string Serialize()
         {
             var result = "{";
             result += $"\"elapsed\":{elapsed}, \"happiness\":{happiness}, \"population\":{population}, \"death_count\":{death_count}, \"birth_rate\":{birth_rate}, ";
             result += $"\"industrial_demand\":{industrial_demand}, \"commercial_demand\":{commercial_demand}, \"residential_demand\": {residential_demand}, ";
+            result += $"\"scenes\":{serializeSceneNames()}, ";
             result += $"\"network_zone_info\": {zm.Info()}";
             result += "}";
             return result;
