@@ -49,6 +49,12 @@ namespace mirage_city_mod
 
         private ZoneMonitor zm;
 
+        public static uint GetElapsed()
+        {
+            var meta = SimulationManager.instance.m_metaData;
+            return (uint)(meta.m_currentDateTime - meta.m_startingDateTime).TotalSeconds;
+        }
+
         public CityInfo()
         {
             district = DistrictManager.instance.m_districts.m_buffer[0];
@@ -57,6 +63,8 @@ namespace mirage_city_mod
             scenes = new Dictionary<String, Scene>();
             var origin = Scene.Origin();
             scenes.Add("default", origin);
+            var close_up = new Scene(900, 200, 400, 90, 90);
+            scenes.Add("closeup", close_up);
             update();
         }
 

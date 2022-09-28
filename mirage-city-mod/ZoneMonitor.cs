@@ -283,6 +283,7 @@ namespace mirage_city_mod
             zone = _zone;
         }
 
+        // TODO: enums may already have int mappings...
         private int zoneToInt()
         {
             switch (zone)
@@ -305,7 +306,6 @@ namespace mirage_city_mod
                     return 99;
                 default:
                     return 0;
-
             }
         }
 
