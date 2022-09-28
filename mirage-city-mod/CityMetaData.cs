@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Configuration;
 
 namespace mirage_city_mod
 {
@@ -18,19 +19,19 @@ namespace mirage_city_mod
         [SerializeField]
         string address;
 
-        public CityMetaData(SimulationMetaData metaData, string _address)
+        public CityMetaData(SimulationMetaData metaData)
         {
             name = metaData.m_CityName;
             id = metaData.m_gameInstanceIdentifier;
-            address = _address;
+            address = Properties.Settings.Default.address;
         }
 
-        public CityMetaData(string _address)
+        public CityMetaData()
         {
             var metaData = SimulationManager.instance.m_metaData;
             name = metaData.m_CityName;
             id = metaData.m_gameInstanceIdentifier;
-            address = _address;
+            address = Properties.Settings.Default.address;
         }
 
         public override string ToString()

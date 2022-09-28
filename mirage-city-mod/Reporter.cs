@@ -11,8 +11,7 @@ namespace mirage_city_mod
     public class Reporter : MonoBehaviour
     {
         private static readonly string mirageCityServerAddress = "https://api.mirage.city";
-        private static readonly string myAddress = "18.27.123.81:9000";
-        private static readonly CityMetaData meta = new CityMetaData(myAddress);
+        private static readonly CityMetaData meta = new CityMetaData();
         private static readonly string registerEndpoint = $"{mirageCityServerAddress}/city/register";
         private static readonly string healthCheckEndpoint = $"{mirageCityServerAddress}/city/health_check";
         private static readonly string infoUpdateEndpoint = $"{mirageCityServerAddress}/city/update/{meta.id}";

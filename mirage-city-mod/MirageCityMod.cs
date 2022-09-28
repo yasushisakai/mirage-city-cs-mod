@@ -4,15 +4,10 @@ using System.Linq;
 using System.Text;
 using ICities;
 using UnityEngine;
+using System.Configuration;
 
 namespace mirage_city_mod
 {
-    public class Constants
-    {
-        // my address;
-
-    }
-
     public class MirageCityMod : IUserMod
     {
         public string Name
