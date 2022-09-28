@@ -62,31 +62,35 @@ namespace mirage_city_mod
                         string mes = Encoding.UTF8.GetString(incoming);
                         Debug.Log($"incoming mes: {mes}");
                         var command = mes[0];
+                        var elapsed = CityInfo.GetElapsed();
                         switch (command)
                         {
                             case 'h':
-                                SendMessage(stream, "hi");
+                                SendMessage(stream, $"OK,{elapsed}");
                                 gotCommand = true;
                                 break;
                             case 't':
                                 SimulationManager.instance.SimulationPaused = !SimulationManager.instance.SimulationPaused;
-                                SendMessage(stream, "OK");
+                                SendMessage(stream, $"OK,{elapsed}");
                                 Debug.Log("toggle done.");
                                 gotCommand = true;
                                 break;
                             case 's':
                                 addScene(mes);
                                 Debug.Log("added scene");
+                                SendMessage(stream, $"OK,{elapsed}");
                                 gotCommand = true;
                                 break;
                             case 'd':
                                 deleteScene(mes);
                                 Debug.Log("deleted scene");
+                                SendMessage(stream, $"OK,{elapsed}");
                                 gotCommand = true;
                                 break;
                             case 'z':
                                 changeZone(mes);
                                 Debug.Log($"zonning done.");
+                                SendMessage(stream, $"OK,{elapsed}");
                                 gotCommand = true;
                                 break;
                             default:

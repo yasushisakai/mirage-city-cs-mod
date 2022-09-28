@@ -31,7 +31,7 @@ namespace mirage_city_mod
         public int width = 640;
         public int height = 480;
 
-        public PrintScreen(int _width = 3840, int _height = 2160)
+        public PrintScreen(int _width = 2880, int _height = 1620)
         {
             width = _width;
             height = _height;

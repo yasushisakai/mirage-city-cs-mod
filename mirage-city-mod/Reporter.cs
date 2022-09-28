@@ -1,8 +1,10 @@
 using UnityEngine;
 using UnityEngine.Networking;
+using ICities;
 using System.Text;
 using System.Collections;
 using System.Collections.Generic;
+using ColossalFramework.UI;
 
 namespace mirage_city_mod
 {
@@ -19,6 +21,8 @@ namespace mirage_city_mod
         private static readonly WaitForSeconds healthCheckInterval = new WaitForSeconds(10);
         private static readonly WaitForSeconds imageCheckInterval = new WaitForSeconds(0.5f);
         private static readonly WaitForSeconds updateInterval = new WaitForSeconds(15);
+        // private static readonly WaitForSeconds saveInterval = new WaitForSeconds(1800); // 30min
+        private static readonly WaitForSeconds saveInterval = new WaitForSeconds(60); // 30min
         private HealthCheck hc;
         private CamController camCon;
         public void Start()
@@ -30,6 +34,7 @@ namespace mirage_city_mod
             StartCoroutine(register());
             StartCoroutine(healthCheck());
             StartCoroutine(updateInfo());
+            StartCoroutine(archiveCities());
         }
 
         private IEnumerator register()
@@ -88,6 +93,23 @@ namespace mirage_city_mod
                     // screen shots are based on the same info
                     yield return uploadScreenshots(info.elapsed, info.scenes);
                     yield return sendText(infoUpdateEndpoint, info.Serialize(), "POST");
+                }
+            }
+        }
+
+        private IEnumerator archiveCities()
+        {
+            while (true)
+            {
+                yield return saveInterval;
+                SavePanel savePanel = UIView.library.Get<SavePanel>("SavePanel");
+                if (savePanel != null)
+                {
+                    Debug.Log("--- archiving city ---");
+                    var gameName = SimulationManager.instance;
+                    var metaData = SimulationManager.instance.m_metaData;
+                    name = metaData.m_CityName;
+                    savePanel.SaveGame(name); // the save directory is a git repository
                 }
             }
         }
