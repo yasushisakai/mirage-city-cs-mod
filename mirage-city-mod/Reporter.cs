@@ -48,7 +48,18 @@ namespace mirage_city_mod
                 yield return healthCheckInterval;
                 hc.update();
                 yield return sendJson(healthCheckEndpoint, hc, "POST");
-                var zm = new ZoneMonitor();
+                if (CityInfo.Instance.ShouldRunSim())
+                {
+                    SimulationManager.instance.SimulationPaused = false;
+                    CityInfo.Instance.decSimCounter();
+                }
+                else
+                {
+                    if (!SimulationManager.instance.SimulationPaused)
+                    {
+                        SimulationManager.instance.SimulationPaused = true;
+                    }
+                }
             }
         }
 
@@ -92,18 +103,6 @@ namespace mirage_city_mod
                     // screen shots are based on the same info
                     yield return uploadScreenshots(info.elapsed, info.scenes);
                     yield return sendText(infoUpdateEndpoint, info.Serialize(), "POST");
-                    if (CityInfo.Instance.ShouldRunSim())
-                    {
-                        SimulationManager.instance.SimulationPaused = false;
-                        CityInfo.Instance.decSimCounter();
-                    }
-                    else
-                    {
-                        if (!SimulationManager.instance.SimulationPaused)
-                        {
-                            SimulationManager.instance.SimulationPaused = true;
-                        }
-                    }
                 }
             }
         }
