@@ -108,6 +108,7 @@ namespace mirage_city_mod
 
         public void incSimCounter()
         {
+            // max limit?
             simCounter++;
         }
 
