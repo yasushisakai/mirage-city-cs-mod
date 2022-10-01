@@ -93,6 +93,11 @@ namespace mirage_city_mod
                                 SendMessage(stream, $"OK,{elapsed}");
                                 gotCommand = true;
                                 break;
+                            case 'e':
+                                Debug.Log("empty.");
+                                SendMessage(stream, $"OK,{elapsed}");
+                                gotCommand = true;
+                                break;
                             default:
                                 SendMessage(stream, "Invalid Command");
                                 break;
