@@ -92,6 +92,7 @@ namespace mirage_city_mod
         public void update()
         {
             var meta = SimulationManager.instance.m_metaData;
+            district = DistrictManager.instance.m_districts.m_buffer[0];
             elapsed = (uint)(meta.m_currentDateTime - meta.m_startingDateTime).TotalSeconds;
             population = district.m_populationData.m_finalCount;
             happiness = district.m_finalHappiness;
