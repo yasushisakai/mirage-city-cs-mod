@@ -134,9 +134,6 @@ _NCrunch*
 
 .vs
 
-Settings.Designer.cs
-*.settings
-*.config
 mirage-city-mod/app.config
 mirage-city-mod/Properties/Settings.Designer.cs
 mirage-city-mod/Properties/Settings.settings
