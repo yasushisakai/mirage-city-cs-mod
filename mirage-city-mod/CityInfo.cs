@@ -49,6 +49,8 @@ namespace mirage_city_mod
 
         private ZoneMonitor zm;
 
+        private int simCounter;
+
         public static uint GetElapsed()
         {
             var meta = SimulationManager.instance.m_metaData;
@@ -65,6 +67,7 @@ namespace mirage_city_mod
             scenes.Add("default", origin);
             var close_up = new Scene(900, 200, 400, 90, 90);
             scenes.Add("closeup", close_up);
+            simCounter = 0;
             update();
         }
 
@@ -88,7 +91,6 @@ namespace mirage_city_mod
             return newElapsed != elapsed;
         }
 
-
         public void update()
         {
             var meta = SimulationManager.instance.m_metaData;
@@ -102,6 +104,22 @@ namespace mirage_city_mod
             commercial_demand = zone.m_commercialDemand;
             industrial_demand = zone.m_workplaceDemand;
             network_zone_info = zm.Info();
+        }
+
+        public void incSimCounter()
+        {
+            simCounter++;
+        }
+
+        public void decSimCounter()
+        {
+            if (simCounter > 0)
+                simCounter--;
+        }
+
+        public bool ShouldRunSim()
+        {
+            return simCounter > 0;
         }
 
         private string serializeSceneNames()
