@@ -110,7 +110,9 @@ namespace mirage_city_mod
                     Debug.Log("--- updating city info ---");
                     // screen shots are based on the same info
                     yield return uploadScreenshots(info.elapsed, info.scenes);
+                    Debug.Log("-- sent screenshots, now the text --");
                     yield return sendText(infoUpdateEndpoint, info.Serialize(), "POST");
+                    Debug.Log("--- done updating city info--- ");
                 }
             }
         }
