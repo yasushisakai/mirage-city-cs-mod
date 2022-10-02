@@ -65,8 +65,6 @@ namespace mirage_city_mod
             scenes = new Dictionary<String, Scene>();
             var origin = Scene.Origin();
             scenes.Add("default", origin);
-            var close_up = new Scene(900, 200, 400, 90, 90);
-            scenes.Add("closeup", close_up);
             simCounter = 0;
             update();
         }

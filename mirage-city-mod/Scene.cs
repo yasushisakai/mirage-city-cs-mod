@@ -13,7 +13,13 @@ namespace mirage_city_mod
         // Set Camera to Origin facing downwards, north up
         public static Scene Origin()
         {
-            var scene = new Scene(0f, 0f, 4000f, 90f, 90f);
+            var settings = Properties.Settings.Default;
+            var scene = new Scene(
+                settings.camOriginX, 
+                settings.camOriginZ, 
+                settings.camOriginSize, 
+                settings.camOriginAngleX, 
+                settings.camOriginAngleY);
             return scene;
         }
 
