@@ -6,7 +6,8 @@ namespace mirage_city_mod
 
     public class CamController : MonoBehaviour
     {
-        static readonly WaitForSeconds interval = new WaitForSeconds(0.25f);
+        // static readonly WaitForSeconds interval = new WaitForSeconds(0.25f);
+        static readonly WaitForEndOfFrame interval = new WaitForEndOfFrame();
         CameraController controller;
 
         public void Start()
@@ -22,14 +23,15 @@ namespace mirage_city_mod
         }
         public static bool Approx(Vector3 value, Vector3 other)
         {
-            var dist = Vector3.Distance(value, other);
+            var v2d = new Vector2(value.x, value.z);
+            var o2d = new Vector2(other.x, other.z);
+            var dist = Vector2.Distance(v2d, o2d);
             return dist < 1.0;
         }
 
         public static bool Approx(Vector2 value, Vector2 other)
         {
-            var dist = Vector2.Distance(value, other);
-            return dist < 1.0;
+            return Mathf.Approximately(value.x, other.x) && Mathf.Approximately(value.y, other.y);
         }
 
 
@@ -58,6 +60,15 @@ namespace mirage_city_mod
             Debug.Log(CurrentScene().ToString());
         }
 
+        public void setFreeCamera()
+        {
+            controller.m_freeCamera = true;
+        }
+
+        public void disableFreeCamera()
+        {
+            controller.m_freeCamera = false;
+        }
     }
 
 

@@ -68,14 +68,13 @@ namespace mirage_city_mod
 
         private IEnumerator uploadScreenshots(double _elapsed, IDictionary<string, Scene> scenes)
         {
+            camCon.setFreeCamera();
             foreach (KeyValuePair<string, Scene> s in scenes)
             {
-                Debug.Log($"taking picture of: {s.Key}");
                 yield return camCon.SetScene(s.Value);
-                Debug.Log($"scene set, uploading");
                 yield return uploadScreenshot(_elapsed, s.Key);
             }
-
+            camCon.disableFreeCamera();
             yield return null;
         }
 
@@ -84,14 +83,11 @@ namespace mirage_city_mod
 
             var endpoint = $"{mirageCityServerAddress}/city/upload/{meta.id}/{(int)_elapsed}/{key}";
             var screen = PrintScreen.Instance;
-            Debug.Log("shooting starts");
             yield return screen.Shoot();
-            Debug.Log("wating for screenshot");
             while (!screen.ready)
             {
                 yield return imageCheckInterval;
             }
-            Debug.Log("screen shot ready, uploading");
             yield return sendJpg(endpoint, screen.buffer, "POST");
             screen.Reset();
         }
@@ -105,16 +101,13 @@ namespace mirage_city_mod
             while (true)
             {
                 yield return updateInterval;
-                Debug.Log("update info");
                 if (info.isStale())
                 {
                     info.update();
                     Debug.Log("--- updating city info ---");
                     // screen shots are based on the same info
                     yield return uploadScreenshots(info.elapsed, info.scenes);
-                    Debug.Log("-- sent screenshots, now the text --");
                     yield return sendText(infoUpdateEndpoint, info.Serialize(), "POST");
-                    Debug.Log("--- done updating city info--- ");
                 }
             }
         }
@@ -185,9 +178,6 @@ namespace mirage_city_mod
             req.timeout = 10; // seconds
 
             yield return req.Send();
-
-            Debug.Log("image sent");
-
             if (req.responseCode != 200)
             {
                 Debug.Log($"sending image errored with: {req.responseCode}");
