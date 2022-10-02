@@ -70,6 +70,7 @@ namespace mirage_city_mod
         {
             foreach (KeyValuePair<string, Scene> s in scenes)
             {
+                Debug.Log($"taking picture of: {s.Key}");
                 yield return camCon.SetScene(s.Value);
                 yield return uploadScreenshot(_elapsed, s.Key);
             }
