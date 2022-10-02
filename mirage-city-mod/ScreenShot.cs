@@ -91,6 +91,7 @@ namespace mirage_city_mod
             int sw = screenShot.width;
             int sh = screenShot.height;
             Color32[] sc = screenShot.GetPixels32();
+            Debug.Log("dispating thread for saving image buffer");
             ThreadHelper.taskDistributor.Dispatch(delegate
             {
                 Image image = new Image(sw, sh, TextureFormat.RGB24, sc);

@@ -48,7 +48,7 @@ namespace mirage_city_mod
             while (true)
             {
                 yield return healthCheckInterval;
-                Debug.Log("--- health check heart beat ---");
+                // Debug.Log("--- health check heart beat ---");
                 hc.update();
                 yield return sendJson(healthCheckEndpoint, hc, "POST");
                 if (CityInfo.Instance.ShouldRunSim())
@@ -82,11 +82,14 @@ namespace mirage_city_mod
 
             var endpoint = $"{mirageCityServerAddress}/city/upload/{meta.id}/{(int)_elapsed}/{key}";
             var screen = PrintScreen.Instance;
+            Debug.Log("shooting starts");
             yield return screen.Shoot();
+            Debug.Log("wating for screenshot");
             while (!screen.ready)
             {
                 yield return imageCheckInterval;
             }
+            Debug.Log("screen shot ready, uploading");
             yield return sendJpg(endpoint, screen.buffer, "POST");
             screen.Reset();
         }
@@ -100,13 +103,16 @@ namespace mirage_city_mod
             while (true)
             {
                 yield return updateInterval;
+                Debug.Log("update info");
                 if (info.isStale())
                 {
                     info.update();
                     Debug.Log("--- updating city info ---");
                     // screen shots are based on the same info
                     yield return uploadScreenshots(info.elapsed, info.scenes);
+                    Debug.Log("-- sent screenshots, now the text --");
                     yield return sendText(infoUpdateEndpoint, info.Serialize(), "POST");
+                    Debug.Log("--- done updating city info--- ");
                 }
             }
         }
@@ -177,6 +183,8 @@ namespace mirage_city_mod
             req.timeout = 10; // seconds
 
             yield return req.Send();
+
+            Debug.Log("image sent");
 
             if (req.responseCode != 200)
             {
