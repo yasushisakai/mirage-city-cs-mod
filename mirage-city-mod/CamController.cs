@@ -22,12 +22,14 @@ namespace mirage_city_mod
         }
         public static bool Approx(Vector3 value, Vector3 other)
         {
-            return Mathf.Approximately(value.x, other.x) && Mathf.Approximately(value.y, other.y) && Mathf.Approximately(value.z, value.z);
+            var dist = Vector3.Distance(value, other);
+            return dist < 1.0;
         }
 
         public static bool Approx(Vector2 value, Vector2 other)
         {
-            return Mathf.Approximately(value.x, other.x) && Mathf.Approximately(value.y, other.y);
+            var dist = Vector2.Distance(value, other);
+            return dist < 1.0;
         }
 
 

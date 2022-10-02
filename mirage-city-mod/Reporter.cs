@@ -17,11 +17,13 @@ namespace mirage_city_mod
         private static readonly string registerEndpoint = $"{mirageCityServerAddress}/city/register";
         private static readonly string healthCheckEndpoint = $"{mirageCityServerAddress}/city/health_check";
         private static readonly string infoUpdateEndpoint = $"{mirageCityServerAddress}/city/update/{meta.id}";
-        private static readonly WaitForSeconds healthCheckInterval = new WaitForSeconds(10);
-        private static readonly WaitForSeconds imageCheckInterval = new WaitForSeconds(0.5f);
-        private static readonly WaitForSeconds updateInterval = new WaitForSeconds(15);
-        // private static readonly WaitForSeconds saveInterval = new WaitForSeconds(1800); // 30min
-        private static readonly WaitForSeconds saveInterval = new WaitForSeconds(60); // 30min
+        public static readonly int healthCheckIntervalSeconds = 5;
+        private static readonly WaitForSeconds healthCheckInterval = new WaitForSeconds(healthCheckIntervalSeconds);
+        private static readonly WaitForEndOfFrame imageCheckInterval = new WaitForEndOfFrame();
+        private static readonly WaitForSeconds updateInterval = new WaitForSeconds(30);
+
+        // note that there is a Task Scheduler (like a cron job) in the OS side to auto commit the git repository. 
+        private static readonly WaitForSeconds saveInterval = new WaitForSeconds(60 * 10); // 10min 
         private HealthCheck hc;
         private CamController camCon;
         public void Start()
@@ -46,6 +48,7 @@ namespace mirage_city_mod
             while (true)
             {
                 yield return healthCheckInterval;
+                Debug.Log("--- health check heart beat ---");
                 hc.update();
                 yield return sendJson(healthCheckEndpoint, hc, "POST");
                 if (CityInfo.Instance.ShouldRunSim())
@@ -100,6 +103,7 @@ namespace mirage_city_mod
                 if (info.isStale())
                 {
                     info.update();
+                    Debug.Log("--- updating city info ---");
                     // screen shots are based on the same info
                     yield return uploadScreenshots(info.elapsed, info.scenes);
                     yield return sendText(infoUpdateEndpoint, info.Serialize(), "POST");
@@ -115,7 +119,7 @@ namespace mirage_city_mod
                 SavePanel savePanel = UIView.library.Get<SavePanel>("SavePanel");
                 if (savePanel != null)
                 {
-                    Debug.Log("--- archiving city ---");
+                    Debug.Log("--- saving game file ---");
                     var gameName = SimulationManager.instance;
                     var metaData = SimulationManager.instance.m_metaData;
                     name = metaData.m_CityName;
