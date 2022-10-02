@@ -89,14 +89,14 @@ namespace mirage_city_mod
                                 break;
                             case 'z':
                                 changeZone(mes);
-                                CityInfo.Instance.incSimCounter();
+                                CityInfo.Instance.addSimDurationFor(60);
                                 Debug.Log($"zonning done.");
                                 SendMessage(stream, $"OK,{elapsed}");
                                 gotCommand = true;
                                 break;
                             case 'e':
                                 Debug.Log("empty.");
-                                CityInfo.Instance.incSimCounter();
+                                CityInfo.Instance.addSimDurationFor(60);
                                 SendMessage(stream, $"OK,{elapsed}");
                                 gotCommand = true;
                                 break;

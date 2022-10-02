@@ -104,23 +104,25 @@ namespace mirage_city_mod
             network_zone_info = zm.Info();
         }
 
-        public void incSimCounter()
+        public void incSimCounter(int inc = 1)
         {
-            // max limit?
-            Debug.Log($"sim counter: {simCounter} (inc)");
-            simCounter++;
+            simCounter += inc;
+        }
+
+        public void addSimDurationFor(int seconds = 10)
+        {
+            var steps = seconds / Reporter.healthCheckIntervalSeconds;
+            incSimCounter(steps);
         }
 
         public void decSimCounter()
         {
-            Debug.Log($"sim counter: {simCounter} (dec)");
             if (simCounter > 0)
                 simCounter--;
         }
 
         public bool ShouldRunSim()
         {
-            Debug.Log($"should sim run? {simCounter}");
             return simCounter > 0;
         }
 
