@@ -106,8 +106,6 @@ namespace mirage_city_mod
 
         public void incSimCounter(int inc = 1)
         {
-            // max limit?
-            Debug.Log($"sim counter: {simCounter} (inc)");
             simCounter += inc;
         }
 
@@ -119,14 +117,12 @@ namespace mirage_city_mod
 
         public void decSimCounter()
         {
-            Debug.Log($"sim counter: {simCounter} (dec)");
             if (simCounter > 0)
                 simCounter--;
         }
 
         public bool ShouldRunSim()
         {
-            Debug.Log($"should sim run? {simCounter}");
             return simCounter > 0;
         }
 
