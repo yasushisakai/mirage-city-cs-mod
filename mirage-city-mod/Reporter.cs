@@ -72,6 +72,7 @@ namespace mirage_city_mod
             {
                 Debug.Log($"taking picture of: {s.Key}");
                 yield return camCon.SetScene(s.Value);
+                Debug.Log($"scene set, uploading");
                 yield return uploadScreenshot(_elapsed, s.Key);
             }
 
