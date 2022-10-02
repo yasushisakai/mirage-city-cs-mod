@@ -46,7 +46,6 @@ namespace mirage_city_mod
 
         public IEnumerator Shoot()
         {
-            Debug.Log("taking screen shot");
             // take screenshot and save it in buffer
             yield return new WaitForEndOfFrame();
             int upscaleWidth = width * 4;
@@ -91,7 +90,6 @@ namespace mirage_city_mod
             int sw = screenShot.width;
             int sh = screenShot.height;
             Color32[] sc = screenShot.GetPixels32();
-            Debug.Log("dispating thread for saving image buffer");
             ThreadHelper.taskDistributor.Dispatch(delegate
             {
                 Image image = new Image(sw, sh, TextureFormat.RGB24, sc);

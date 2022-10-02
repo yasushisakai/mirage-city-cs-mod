@@ -46,7 +46,6 @@ namespace mirage_city_mod
                 Debug.Log("listening in port: " + port);
                 while (true)
                 {
-                    Debug.Log("Wating for connection: ");
                     // this is a blocking function
                     client = listener.AcceptTcpClient();
                     Debug.Log("Connected to client");
@@ -56,11 +55,9 @@ namespace mirage_city_mod
                     var gotCommand = false;
                     while ((len = stream.Read(buffer, 0, buffer.Length)) != 0 && stream.CanRead)
                     {
-                        Debug.Log($"read {len} bytes.");
                         var incoming = new byte[len];
                         Array.Copy(buffer, 0, incoming, 0, len);
                         string mes = Encoding.UTF8.GetString(incoming);
-                        Debug.Log($"incoming mes: {mes}");
                         var command = mes[0];
                         var elapsed = CityInfo.GetElapsed();
                         switch (command)
@@ -110,9 +107,7 @@ namespace mirage_city_mod
                             break;
                         }
                     }
-                    Debug.Log("closing stream");
                     stream.Close();
-                    Debug.Log("closing client");
                     client.Close();
                     client = null;
                 }

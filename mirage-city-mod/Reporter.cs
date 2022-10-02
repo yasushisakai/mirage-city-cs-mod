@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using ICities;
 using System.Text;
+using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using ColossalFramework.UI;
@@ -17,29 +18,51 @@ namespace mirage_city_mod
         private static readonly string registerEndpoint = $"{mirageCityServerAddress}/city/register";
         private static readonly string healthCheckEndpoint = $"{mirageCityServerAddress}/city/health_check";
         private static readonly string infoUpdateEndpoint = $"{mirageCityServerAddress}/city/update/{meta.id}";
+        private static readonly string commitIdChangedEndpoint = $"{mirageCityServerAddress}/city/command/{meta.id}/commit_id";
+
+        private static readonly string saveFolderDirectory = "C:\\Users\\yasushi\\AppData\\Local\\Colossal Order\\Cities_Skylines\\Saves";
         public static readonly int healthCheckIntervalSeconds = 5;
         private static readonly WaitForSeconds healthCheckInterval = new WaitForSeconds(healthCheckIntervalSeconds);
         private static readonly WaitForEndOfFrame imageCheckInterval = new WaitForEndOfFrame();
         private static readonly WaitForSeconds updateInterval = new WaitForSeconds(30);
 
         // note that there is a Task Scheduler (like a cron job) in the OS side to auto commit the git repository. 
-        private static readonly WaitForSeconds saveInterval = new WaitForSeconds(60 * 10); // 10min 
+        private static readonly WaitForSeconds saveInterval = new WaitForSeconds(60 * 15); // 15min 
         private HealthCheck hc;
         private CamController camCon;
+
+        private string commitId;
         public void Start()
         {
 
             hc = new HealthCheck();
             camCon = GetComponent<CamController>();
-
+            commitId = getCommitId();
             StartCoroutine(register());
             StartCoroutine(healthCheck());
             StartCoroutine(updateInfo());
             StartCoroutine(archiveCities());
         }
 
+        public class CommitIdChange
+        {
+            public uint timestamp;
+            public string was;
+            public string next;
+
+            public CommitIdChange(uint _time, string _was, string _next)
+            {
+                timestamp = _time;
+                was = _was;
+                next = _next;
+            }
+        }
+
+
         private IEnumerator register()
         {
+            var commitId = getCommitId();
+
             yield return sendJson(registerEndpoint, meta, "POST");
         }
 
@@ -48,7 +71,6 @@ namespace mirage_city_mod
             while (true)
             {
                 yield return healthCheckInterval;
-                // Debug.Log("--- health check heart beat ---");
                 hc.update();
                 yield return sendJson(healthCheckEndpoint, hc, "POST");
                 if (CityInfo.Instance.ShouldRunSim())
@@ -63,6 +85,15 @@ namespace mirage_city_mod
                         SimulationManager.instance.SimulationPaused = true;
                     }
                 }
+
+                if (commitId != getCommitId())
+                {
+                    var newCommitId = getCommitId();
+                    var commitChanged = new CommitIdChange(CityInfo.Instance.elapsed, commitId, newCommitId);
+                    yield return sendJson(commitIdChangedEndpoint, commitChanged, "POST");
+                    commitId = newCommitId;
+                }
+
             }
         }
 
@@ -127,6 +158,13 @@ namespace mirage_city_mod
                     savePanel.SaveGame(name); // the save directory is a git repository
                 }
             }
+        }
+
+        private string getCommitId()
+        {
+            var main_branch_ref_head_file = $"{Reporter.saveFolderDirectory}//.git//refs//heads//main";
+            var commitId = File.ReadAllText(main_branch_ref_head_file, Encoding.UTF8);
+            return commitId.Trim();
         }
 
         private static UnityWebRequest prepareRequest(string url, byte[] bytes, string method)
