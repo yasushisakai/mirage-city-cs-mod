@@ -103,6 +103,7 @@ namespace mirage_city_mod
             while (true)
             {
                 yield return updateInterval;
+                Debug.Log("update info");
                 if (info.isStale())
                 {
                     info.update();
