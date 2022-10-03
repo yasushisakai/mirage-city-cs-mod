@@ -22,7 +22,6 @@ namespace mirage_city_mod
                 RemoveGroundPollution,
                 RemoveWaterPollution,
                 RemoveDeath,
-                RemoveGarbage,
                 RemoveCrime,
                 RemoveFire,
                 MaximizeAttractiveness,
@@ -74,10 +73,7 @@ namespace mirage_city_mod
         }
         private void RemoveDeath()
         {
-            ImmaterialResourceManager.instance.AddResource(ImmaterialResourceManager.Resource.DeathCare, 100000);
-        }
-        private void RemoveGarbage()
-        {
+            // ImmaterialResourceManager.instance.AddResource(ImmaterialResourceManager.Resource.DeathCare, 100000);
         }
         private void RemoveCrime()
         {
@@ -152,19 +148,19 @@ namespace mirage_city_mod
                 uint citizenID = citizen.GetCitizen(i);
                 if (citizenID != 0u)
                 {
-                    if (mBuffer[citizenID].Dead)
-                    {
-                        ushort citizenInstanceId = mBuffer[citizenID].m_instance;
-                        if (citizenInstanceId != 0)
-                        {
-                            mBuffer[citizenID].m_instance = 0;
-                            ciBuffer[citizenInstanceId].m_citizen = 0u;
-                            cManager.ReleaseCitizenInstance(citizenInstanceId);
-                        }
-                        var family = mBuffer[citizenID].m_family;
-                        cManager.ReleaseCitizen(citizenID);
-                        cManager.CreateCitizen(out citizenID, 5, family, ref SimulationManager.instance.m_randomizer);
-                    }
+                    // if (mBuffer[citizenID].Dead)
+                    // {
+                    //     ushort citizenInstanceId = mBuffer[citizenID].m_instance;
+                    //     if (citizenInstanceId != 0)
+                    //     {
+                    //         mBuffer[citizenID].m_instance = 0;
+                    //         ciBuffer[citizenInstanceId].m_citizen = 0u;
+                    //         cManager.ReleaseCitizenInstance(citizenInstanceId);
+                    //     }
+                    //     var family = mBuffer[citizenID].m_family;
+                    //     cManager.ReleaseCitizen(citizenID);
+                    //     cManager.CreateCitizen(out citizenID, 5, family, ref SimulationManager.instance.m_randomizer);
+                    // }
                 }
             }
         }
