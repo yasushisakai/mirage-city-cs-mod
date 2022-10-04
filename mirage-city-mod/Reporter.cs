@@ -19,6 +19,7 @@ namespace mirage_city_mod
         private static readonly string healthCheckEndpoint = $"{mirageCityServerAddress}/city/health_check";
         private static readonly string infoUpdateEndpoint = $"{mirageCityServerAddress}/city/update/{meta.id}";
         private static readonly string commitIdChangedEndpoint = $"{mirageCityServerAddress}/city/command/{meta.id}/commit_id";
+        private static readonly string citizenReportEndpoint = $"{mirageCityServerAddress}/city/push_citizen/{meta.id}";
 
         private static readonly string saveFolderDirectory = "C:\\Users\\yasushi\\AppData\\Local\\Colossal Order\\Cities_Skylines\\Saves";
         public static readonly int healthCheckIntervalSeconds = 5;
@@ -137,10 +138,21 @@ namespace mirage_city_mod
                     info.update();
                     Debug.Log("--- updating city info ---");
                     // screen shots are based on the same info
+                    yield return reportCitizen();
                     yield return uploadScreenshots(info.elapsed, info.scenes);
                     yield return sendText(infoUpdateEndpoint, info.Serialize(), "POST");
                 }
             }
+        }
+
+        private IEnumerator reportCitizen()
+        {
+            CitizenData cd;
+            if (CitizenFinder.Instance.FindCitizen(out cd))
+            {
+                yield return sendJson(citizenReportEndpoint, cd, "POST");
+            }
+            yield return null;
         }
 
         private IEnumerator archiveCities()
