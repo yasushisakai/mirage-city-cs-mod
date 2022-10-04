@@ -70,6 +70,7 @@
     <Compile Include="Reporter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ZoneMonitor.cs" />
+    <Compile Include="CitizenFinder.cs" />
     <Compile Include="FakeNews.cs" />
     <Compile Include="Scene.cs" />
   </ItemGroup>
