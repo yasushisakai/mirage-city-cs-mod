@@ -38,7 +38,7 @@ namespace mirage_city_mod
                         !citizen.Dead)
                     {
                         cd = new CitizenData(i);
-                        cursor = i;
+                        cursor = i + 1;
                         break; // for
                     }
                 }
@@ -53,12 +53,14 @@ namespace mirage_city_mod
 
     public class CitizenData
     {
+        public uint id;
         public string name;
         public ushort age;
         public byte wealth;
         public byte education;
-        public CitizenData(string _name, ushort _age, byte _wealth, byte _education)
+        public CitizenData(uint _id, string _name, ushort _age, byte _wealth, byte _education)
         {
+            id = _id;
             name = _name;
             age = _age;
             wealth = _wealth;
@@ -67,6 +69,7 @@ namespace mirage_city_mod
 
         public CitizenData(uint cid)
         {
+            id = cid;
             name = CitizenManager.instance.GetCitizenName(cid);
             var citizen = CitizenManager.instance.m_citizens.m_buffer[cid];
             age = citizen.m_age;
