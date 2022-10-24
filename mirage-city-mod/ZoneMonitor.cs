@@ -62,7 +62,7 @@ namespace mirage_city_mod
             {
                 blocksString += $"{b}, ";
                 var block = ZoneManager.instance.m_blocks.m_buffer[b];
-                var rows = block.RowCount;
+                var rows = Math.Min(block.RowCount, 8);
                 var bl = new Block(b);
                 for (int x = 0; x < ZoneBlock.COLUMN_COUNT; x++)
                 {
@@ -90,37 +90,28 @@ namespace mirage_city_mod
 
             var network = new Network(blocks, edges, nodes);
 
-            // dump
-            // string file = @"C:\Users\yasushi\Desktop\blocks.json";
-            // File.WriteAllText(file, network.Serialize());
-
             return network.Serialize();
         }
 
-        public static bool ChangeLandUse(UInt16 index, int x, int z, ItemClass.Zone type)
+        public static void ChangeLandUseBlock(UInt16 index, ItemClass.Zone type)
         {
-            ItemClass.Zone zone;
-            if (GetLandUse(index, x, z, out zone))
+            ref var block = ref ZoneManager.instance.m_blocks.m_buffer[index];
+            var rows = Math.Min(block.RowCount, 8);
+            Debug.Log($"changing: b:{index}, rows:{rows}, zone:{type.ToString()}");
+            for (int x = 0; x < ZoneBlock.COLUMN_COUNT; x++)
             {
-                ref var block = ref ZoneManager.instance.m_blocks.m_buffer[index];
-                if (zone == ItemClass.Zone.Unzoned)
+                for (int z = 0; z < rows; z++)
                 {
-                    block.SetZone(x, z, type);
-                    block.RefreshZoning((ushort)index);
+                    ulong select = (ulong)(1L << ((z << 3) | x));
+                    if ((block.m_valid & select) != 0 &&
+                    (block.m_shared) == 0)
+                    {
+                        block.SetZone(x, z, ItemClass.Zone.Unzoned);
+                        block.SetZone(x, z, type);
+                    }
                 }
-                else
-                {
-                    block.SetZone(x, z, ItemClass.Zone.Unzoned);
-                    block.RefreshZoning((ushort)index);
-                    block.SetZone(x, z, type);
-                    block.RefreshZoning((ushort)index);
-                }
-                return true;
             }
-            else
-            {
-                return false;
-            }
+            block.RefreshZoning((ushort)index);
         }
 
         public static bool GetLandUse(UInt16 index, int x, int z, out ItemClass.Zone zone)

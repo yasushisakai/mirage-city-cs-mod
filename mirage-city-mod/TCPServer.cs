@@ -122,17 +122,9 @@ namespace mirage_city_mod
         {
             var split = message.Split(',');
             var id = UInt16.Parse(split[1]);
-            var xzPairNum = (split.Length - 2 / 3);
-            for (int i = 2; i < xzPairNum; i += 3)
-            {
-                var x = UInt16.Parse(split[i]);
-                var z = UInt16.Parse(split[i + 1]);
-                var zoneId = UInt16.Parse(split[i + 2]);
-                Debug.Log($"id: {id}, x: {x}, z: {z}, zone: {zoneId}");
-                var newZone = Cell.IdtoZone(zoneId);
-                var zone = ZoneMonitor.ChangeLandUse(id, x, z, newZone);
-                Debug.Log($"change zone result: {zone}");
-            }
+            var zoneId = UInt16.Parse(split[2]);
+            var zone = Cell.IdtoZone(zoneId);
+            ZoneMonitor.ChangeLandUseBlock(id, zone);
         }
 
         private void addScene(string message)
